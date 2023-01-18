@@ -1,6 +1,8 @@
 import sys
+import time
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QDialog,QMessageBox, QApplication, QVBoxLayout, QGroupBox, QVBoxLayout, QGridLayout, QPushButton
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QDialog, QMessageBox, QApplication, QVBoxLayout, QGroupBox, QVBoxLayout, QGridLayout, QPushButton, QLabel
 from PyQt5.uic import loadUi
 import numpy as np
 from PIL import Image
@@ -11,10 +13,18 @@ class mainPage(QDialog):
         loadUi("mainPage.ui", self)
         self.computeButton.clicked.connect(self.computeFunction)
 
+    def updatePhoto(self):
+        gridPhoto = QLabel(self)
+        pixmap = QPixmap('result.png')
+        gridPhoto.setPixmap(pixmap)
+        gridPhoto.move(540,150)
+        gridPhoto.show()
+
     def randomGridValue(max):
         return np.random.randint(0, max)
 
     def computeFunction(self):
+        mainPage.updatePhoto(self)
         gridWidth = int(self.gridWidthText.text())
         gridHeight = int(self.gridHeightText.text())
         obstaclePercent = int(self.obstacleText.text()) / 100
@@ -52,8 +62,9 @@ class mainPage(QDialog):
                 amountOfObstacles -= 1
             
         # Make into PIL Image and scale up using Nearest Neighbour
-        im = Image.fromarray(grid).resize((1600,1600), resample=Image.NEAREST)
+        im = Image.fromarray(grid).resize((550,550), resample=Image.NEAREST)
         im.save('result.png')
+        mainPage.updatePhoto(self)
 
 app = QApplication(sys.argv)
 mainwindow = mainPage()
