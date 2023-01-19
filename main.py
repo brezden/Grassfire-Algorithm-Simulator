@@ -5,6 +5,7 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QDialog, QMessageBox, QApplication, QVBoxLayout, QGroupBox, QVBoxLayout, QGridLayout, QPushButton, QLabel
 from PyQt5.uic import loadUi
 import numpy as np
+from calculations import Calculations
 from PIL import Image
 
 class mainPage(QDialog):
@@ -20,26 +21,25 @@ class mainPage(QDialog):
         gridPhoto.move(540,150)
         gridPhoto.show()
 
-    def randomGridValue(max):
-        return np.random.randint(0, max)
+    def saveImage(grid, self):
+        # Make into PIL Image and scale up using Nearest Neighbour
+        im = Image.fromarray(grid).resize((550,550), resample=Image.NEAREST)
+        im.save('result.png')
+        mainPage.updatePhoto(self)
 
     def computeFunction(self):
         mainPage.updatePhoto(self)
         gridWidth = int(self.gridWidthText.text())
         gridHeight = int(self.gridHeightText.text())
         obstaclePercent = int(self.obstacleText.text()) / 100
-        white = np.array([255, 255, 255])
-        black = np.array([0, 0, 0])
-        green = np.array([71, 181, 69])
-        red = np.array([214, 71, 49])
 
         # Generate 10x10 grid of random colours
-        grid = np.random.randint(255,256, (gridHeight, gridWidth, 3), dtype=np.uint8)
+        grid = np.random.randint(255,256, (gridWidth, gridHeight, 3), dtype=np.uint8)
 
-        startY = mainPage.randomGridValue(gridHeight)
-        startX = mainPage.randomGridValue(gridWidth)
+        startX = Calculations.randomGridValue(gridWidth)
+        startY = Calculations.randomGridValue(gridHeight)
 
-        grid[startY, startX] = 71, 181, 69 #Green
+        grid[startX, startY] = Calculations.startNode
 
         endY = np.random.randint(0, gridHeight)
 
@@ -49,22 +49,21 @@ class mainPage(QDialog):
             if (startX != endX):
                 break
         
-        grid[endY, endX] = 214, 71, 49 #Red
+        grid[endX, endY] = Calculations.endNode
 
         amountOfObstacles = round((gridHeight * gridWidth) * obstaclePercent)
 
         while (amountOfObstacles != 0):
-            obsX = mainPage.randomGridValue(gridWidth)
-            obsY = mainPage.randomGridValue(gridHeight)
-            
-            if not(np.array_equal(grid[obsY, obsX], black) or np.array_equal(grid[obsY, obsX], green) or np.array_equal(grid[obsY, obsX], red)):
-                grid[obsY, obsX] =  black
+            obsX = Calculations.randomGridValue(gridWidth)
+            obsY = Calculations.randomGridValue(gridHeight)
+            possibleObstacleNode = grid[obsX, obsY]
+
+            if not(Calculations.isNodeObstacle(possibleObstacleNode) or Calculations.isNodeStart(possibleObstacleNode) or Calculations.isNodeEnd(possibleObstacleNode)):
+                grid[obsX, obsY] =  Calculations.obstacleNode
                 amountOfObstacles -= 1
-            
-        # Make into PIL Image and scale up using Nearest Neighbour
-        im = Image.fromarray(grid).resize((550,550), resample=Image.NEAREST)
-        im.save('result.png')
-        mainPage.updatePhoto(self)
+
+        mainPage.saveImage(grid, self)
+
 
 app = QApplication(sys.argv)
 mainwindow = mainPage()
