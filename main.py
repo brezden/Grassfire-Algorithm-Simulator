@@ -12,64 +12,33 @@ class mainPage(QDialog):
     def __init__(self):
         super(mainPage,self).__init__()
         loadUi("mainPage.ui", self)
-        self.computeButton.clicked.connect(self.computeFunction)
+        self.computeButton.clicked.connect(self.handleInput)
 
-    def updatePhoto(self):
+    def savePhoto(grid, self):
+        im = Image.fromarray(grid).resize((550,550), resample=Image.NEAREST).save('result.png')
         gridPhoto = QLabel(self)
-        pixmap = QPixmap('result.png')
-        gridPhoto.setPixmap(pixmap)
-        gridPhoto.move(540,150)
-        gridPhoto.show()
+        gridPhoto.setPixmap(QPixmap('result.png')), gridPhoto.move(540,150), gridPhoto.show()
 
-    def saveImage(grid, self):
-        # Make into PIL Image and scale up using Nearest Neighbour
-        im = Image.fromarray(grid).resize((550,550), resample=Image.NEAREST)
-        im.save('result.png')
-        mainPage.updatePhoto(self)
-
-    def computeFunction(self):
-        mainPage.updatePhoto(self)
+    def handleInput(self):
         gridWidth = int(self.gridWidthText.text())
         gridHeight = int(self.gridHeightText.text())
         obstaclePercent = int(self.obstacleText.text()) / 100
 
-        # Generate 10x10 grid of random colours
-        grid = np.random.randint(255,256, (gridWidth, gridHeight, 3), dtype=np.uint8)
+        grid = Calculations.grassfireComputation(gridWidth, gridHeight, obstaclePercent)
+        print(grid)
+        mainPage.savePhoto(grid, self)
 
-        startX = Calculations.randomGridValue(gridWidth)
-        startY = Calculations.randomGridValue(gridHeight)
-
-        grid[startX, startY] = Calculations.startNode
-
-        endY = np.random.randint(0, gridHeight)
-
-        while True:
-            endX = np.random.randint(0, gridWidth)
-
-            if (startX != endX):
-                break
-        
-        grid[endX, endY] = Calculations.endNode
-
-        amountOfObstacles = round((gridHeight * gridWidth) * obstaclePercent)
-
-        while (amountOfObstacles != 0):
-            obsX = Calculations.randomGridValue(gridWidth)
-            obsY = Calculations.randomGridValue(gridHeight)
-            possibleObstacleNode = grid[obsX, obsY]
-
-            if not(Calculations.isNodeObstacle(possibleObstacleNode) or Calculations.isNodeStart(possibleObstacleNode) or Calculations.isNodeEnd(possibleObstacleNode)):
-                grid[obsX, obsY] =  Calculations.obstacleNode
-                amountOfObstacles -= 1
-
-        mainPage.saveImage(grid, self)
-
-
+#Settings
 app = QApplication(sys.argv)
-mainwindow = mainPage()
+
+#Error Printing for Console (Ignore)
+sys._excepthook = sys.excepthook 
+def exception_hook(exctype, value, traceback):
+    print(exctype, value, traceback)
+    sys._excepthook(exctype, value, traceback) 
+    sys.exit(1) 
+sys.excepthook = exception_hook 
+
 widget = QtWidgets.QStackedWidget()
-widget.addWidget(mainwindow)
-widget.setFixedWidth(1200)
-widget.setFixedHeight(800)
-widget.show()
+widget.setFixedWidth(1200), widget.setFixedHeight(800), widget.show(), widget.addWidget(mainPage())
 app.exec_()
