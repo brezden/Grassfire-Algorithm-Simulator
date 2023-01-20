@@ -5,7 +5,7 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QDialog, QMessageBox, QApplication, QVBoxLayout, QGroupBox, QVBoxLayout, QGridLayout, QPushButton, QLabel
 from PyQt5.uic import loadUi
 import numpy as np
-from calculations import Calculations
+from grid import Grid
 from PIL import Image
 
 class mainPage(QDialog):
@@ -24,9 +24,9 @@ class mainPage(QDialog):
         gridHeight = int(self.gridHeightText.text())
         obstaclePercent = int(self.obstacleText.text()) / 100
 
-        grid = Calculations.grassfireComputation(gridWidth, gridHeight, obstaclePercent)
-        print(grid)
-        mainPage.savePhoto(grid, self)
+        gridMap = Grid.gridComputation(gridWidth, gridHeight, obstaclePercent)
+        mainPage.savePhoto(gridMap, self)
+        #Grid.gridPathComputation
 
 #Settings
 app = QApplication(sys.argv)
@@ -40,5 +40,5 @@ def exception_hook(exctype, value, traceback):
 sys.excepthook = exception_hook 
 
 widget = QtWidgets.QStackedWidget()
-widget.setFixedWidth(1200), widget.setFixedHeight(800), widget.show(), widget.addWidget(mainPage())
+widget.setFixedWidth(1200), widget.setFixedHeight(800), widget.show(), widget.addWidget(mainPage()), widget.setWindowTitle('Grassfire Algorithm Solver by Callum Brezden')
 app.exec_()
