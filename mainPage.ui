@@ -309,6 +309,26 @@ font: 25px &quot;Lucida Console&quot;;</string>
     <set>Qt::AlignCenter</set>
    </property>
   </widget>
+  <widget class="QRadioButton" name="slowMode">
+   <property name="geometry">
+    <rect>
+     <x>210</x>
+     <y>620</y>
+     <width>141</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">display: flex;
+align-items: center;
+justify-content: center;
+color: rgb(0, 255, 0);
+font: 20px &quot;Lucida Console&quot;;</string>
+   </property>
+   <property name="text">
+    <string>Slow Mode</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

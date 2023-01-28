@@ -2,7 +2,8 @@ import numpy as np
 
 class Grid():
 
-    grid = distanceValue = gridWidth = gridHeight = obstaclePercent = startNodeX = startNodeY = endNodeX = endNodeY = amountOfObstacles = 0
+    grid = distanceValue = totalDistance = gridWidth = gridHeight = obstaclePercent = startNodeX = startNodeY = endNodeX = endNodeY = amountOfObstacles = 0
+    listOfPathCords = []
     emptyNode = np.array([255, 255, 255])
     obstacleNode = np.array([0, 0, 0])
     startNode = np.array([0, 100, 0])
@@ -68,6 +69,15 @@ class Grid():
         Grid.calculateObstacles()
         return Grid.grid
 
+class GridSlowMode():
+
+    def printPathStep():
+        if not(len(Grid.listOfPathCords) == 0):
+            x = Grid.listOfPathCords.pop()
+            Grid.grid[x[0], x[1]] = np.array([0, 167, 189])
+            Grid.distanceValue += 1
+
+
 class GridShortestPath():
     
     def findShortestDistanceValue(nodeX, nodeY):
@@ -84,7 +94,7 @@ class GridShortestPath():
 
         return min(x)
 
-    def findShortestPath():
+    def findShortestPath(slowMode):
         GridSearch.findShortestPath()
 
         node = GridSearch.searchGrid[Grid.endNodeX, Grid.endNodeY]
@@ -117,8 +127,14 @@ class GridShortestPath():
             elif (x == rightNodeValue): nodeX = nodeX + 1    
             elif (x == downNodeValue): nodeY = nodeY + 1
             else: nodeX = nodeX - 1
-        
-            Grid.grid[nodeX, nodeY] = np.array([0, 167, 189])
+
+            if (slowMode == True):
+                Grid.listOfPathCords.append([nodeX, nodeY])
+
+            else:
+                Grid.grid[nodeX, nodeY] = np.array([0, 167, 189])
+            
+            Grid.totalDistance += 1
             i += 1
 
         GridShortestPath.cleanGrid()

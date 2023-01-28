@@ -4,8 +4,9 @@ from PyQt5 import QtWidgets
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QDialog, QMessageBox, QApplication, QVBoxLayout, QGroupBox, QVBoxLayout, QGridLayout, QPushButton, QLabel
 from PyQt5.uic import loadUi
+from PyQt5.QtCore import *
 import numpy as np
-from grid import Grid, GridSearch, GridShortestPath
+from grid import Grid, GridSearch, GridShortestPath, GridSlowMode
 from PIL import Image
 
 class mainPage(QDialog):
@@ -21,18 +22,71 @@ class mainPage(QDialog):
 
     def handleInput(self):
         try:
+            self.computeButton.setEnabled(False)
+            self.distance.setText("Distance From Start: ")
             gridWidth = int(self.gridWidthText.text())
             gridHeight = int(self.gridHeightText.text())
             obstaclePercent = int(self.obstacleText.text()) / 100
             
             if ((8 <= gridWidth <= 100) and (8 <= gridHeight <= 100) and (.10 <= obstaclePercent <= .20)):
+                Grid.totalDistance = 0
                 gridMap = Grid.gridComputation(gridWidth, gridHeight, obstaclePercent)
                 mainPage.savePhoto(gridMap, self)
-                finalGridMap = GridShortestPath.findShortestPath()
-                mainPage.savePhoto(finalGridMap, self)
-                self.distance.setText("Distance From Start: " + str(Grid.distanceValue))
+                finalGridMap = GridShortestPath.findShortestPath(self.slowMode.isChecked())
+                self.worker = WorkerThread()
+
+                print(self.slowMode.isChecked())
+
+                if (self.slowMode.isChecked()):
+                    self.worker.start()
+                    self.worker.update_progress.connect(self.imageUpdate)
+                    self.worker.finished.connect(self.imageFinished)
+                else:
+                    print(type(finalGridMap))
+                    mainPage.savePhoto(finalGridMap, self)
+                    self.distance.setText("Distance From Start: " + str(Grid.distanceValue))
+                    self.computeButton.setEnabled(True)
+            
         except:
             pass
+    
+    def imageUpdate(self):
+        print("yes sir")
+        mainPage.savePhoto(Grid.grid, self)
+        self.distance.setText("Distance From Start: " + str(Grid.distanceValue))
+
+    def imageFinished(self):
+        self.computeButton.setEnabled(True)
+
+class WorkerThread(QThread):
+    update_progress = pyqtSignal()
+
+    def run(self):
+        Grid.distanceValue = 0
+
+        if (Grid.totalDistance <= 5):
+            for i in range(0, (Grid.totalDistance), 1):
+                GridSlowMode.printPathStep()
+                self.update_progress.emit()
+                time.sleep(0.75)
+        
+        elif (5 < Grid.totalDistance <= 10):
+            for i in range(0, (Grid.totalDistance), 1):
+                GridSlowMode.printPathStep()
+                self.update_progress.emit()
+                time.sleep(0.40)
+        
+        elif (10 < Grid.totalDistance <= 20):
+            for i in range(0, (Grid.totalDistance), 1):
+                GridSlowMode.printPathStep()
+                self.update_progress.emit()
+                time.sleep(0.20)
+        
+        else:
+            for i in range(0, (Grid.totalDistance), 1):
+                GridSlowMode.printPathStep()
+                self.update_progress.emit()
+                time.sleep(0.05)
 
 #Settings
 app = QApplication(sys.argv)
