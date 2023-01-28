@@ -286,6 +286,29 @@ font: 18px &quot;Lucida Console&quot;;</string>
     <set>Qt::AlignCenter</set>
    </property>
   </widget>
+  <widget class="QLabel" name="distance">
+   <property name="geometry">
+    <rect>
+     <x>540</x>
+     <y>720</y>
+     <width>551</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">display: flex;
+align-items: center;
+justify-content: center;
+color: rgb(0, 255, 0);
+font: 25px &quot;Lucida Console&quot;;</string>
+   </property>
+   <property name="text">
+    <string>Distance From Start:</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

@@ -2,11 +2,12 @@ import numpy as np
 
 class Grid():
 
-    grid = gridWidth = gridHeight = obstaclePercent = startNodeX = startNodeY = endNodeX = endNodeY = amountOfObstacles = 0
+    grid = distanceValue = gridWidth = gridHeight = obstaclePercent = startNodeX = startNodeY = endNodeX = endNodeY = amountOfObstacles = 0
     emptyNode = np.array([255, 255, 255])
     obstacleNode = np.array([0, 0, 0])
     startNode = np.array([0, 100, 0])
     endNode = np.array([214, 71, 49])
+    path = np.array([0, 167, 189])
 
     def isNodeEmpty(arrayValues):
         return (np.array_equal(arrayValues, Grid.emptyNode))
@@ -19,6 +20,9 @@ class Grid():
     
     def isNodeEnd(arrayValues):
         return (np.array_equal(arrayValues, Grid.endNode))
+    
+    def isNodePath(arrayValues):
+        return (np.array_equal(arrayValues, Grid.path))
 
     def randomGridValueX():
         return np.random.randint(0, Grid.gridWidth)
@@ -66,6 +70,20 @@ class Grid():
 
 class GridShortestPath():
     
+    def findShortestDistanceValue(nodeX, nodeY):
+        upNodeValue = GridShortestPath.searchNode(nodeX, nodeY - 1)
+        rightNodeValue = GridShortestPath.searchNode(nodeX + 1, nodeY)
+        downNodeValue = GridShortestPath.searchNode(nodeX, nodeY + 1)
+        leftNodeValue = GridShortestPath.searchNode(nodeX - 1, nodeY)                
+
+        x = [upNodeValue, rightNodeValue, downNodeValue, leftNodeValue]
+        while 0 in x: x.remove(0)
+
+        if (len(x) == 0):
+            return 0
+
+        return min(x)
+
     def findShortestPath():
         GridSearch.findShortestPath()
 
@@ -73,7 +91,12 @@ class GridShortestPath():
         nodeX = Grid.endNodeX
         nodeY = Grid.endNodeY
 
-        while True:
+        Grid.distanceValue = GridShortestPath.findShortestDistanceValue(nodeX, nodeY)
+
+        counter = Grid.gridWidth * Grid.gridHeight
+        i = 0
+
+        while (i < counter):
 
             upNodeValue = GridShortestPath.searchNode(nodeX, nodeY - 1)
             rightNodeValue = GridShortestPath.searchNode(nodeX + 1, nodeY)
@@ -88,22 +111,17 @@ class GridShortestPath():
 
             x = min(x)
 
-            if ((upNodeValue == 100) or (rightNodeValue == 100) or (downNodeValue == 100) or (leftNodeValue == 100)):
-                break
-
-            if (x == upNodeValue):
-                nodeY = nodeY - 1
-
-            elif (x == rightNodeValue):
-                nodeX = nodeX + 1    
+            if ((upNodeValue == 100) or (rightNodeValue == 100) or (downNodeValue == 100) or (leftNodeValue == 100)): break
             
-            elif (x == downNodeValue):
-                nodeY = nodeY + 1
-
-            else:
-                nodeX = nodeX - 1
+            if (x == upNodeValue): nodeY = nodeY - 1
+            elif (x == rightNodeValue): nodeX = nodeX + 1    
+            elif (x == downNodeValue): nodeY = nodeY + 1
+            else: nodeX = nodeX - 1
         
-            Grid.grid[nodeX, nodeY] = np.array([0, 0, 49])
+            Grid.grid[nodeX, nodeY] = np.array([0, 167, 189])
+            i += 1
+
+        GridShortestPath.cleanGrid()
 
         return Grid.grid
     
@@ -122,14 +140,17 @@ class GridShortestPath():
    
         if (Grid.isNodeObstacle((Grid.grid[x, y]))):
             return False
-        
-        if (Grid.isNodeStart((Grid.grid[x, y]))):
-            return "Break"
-        
+                
         if (Grid.isNodeEnd((Grid.grid[x, y]))):
             return False
 
         return True
+
+    def cleanGrid():
+        for i in range(0, Grid.gridWidth, 1):
+            for j in range(0, Grid.gridHeight, 1):
+                if ((not(Grid.isNodeObstacle(Grid.grid[i, j]))) and (not(Grid.isNodeStart(Grid.grid[i, j]))) and (not(Grid.isNodeEnd(Grid.grid[i, j]))) and (not(Grid.isNodePath(Grid.grid[i, j])))):
+                    Grid.grid[i,j] = np.array([255, 255, 255])
 
 
 class GridSearch():
@@ -138,7 +159,8 @@ class GridSearch():
     nodes = []
     
     def findShortestPath():
-        GridSearch.searchGrid = Grid.grid
+        x = Grid.grid
+        GridSearch.searchGrid = x
         GridSearch.searchGrid[Grid.startNodeX, Grid.startNodeY] = np.array([0, 100, 0])
         currentNodeCords = [Grid.startNodeX, Grid.startNodeY]
         GridSearch.nodes.append(currentNodeCords)
@@ -156,8 +178,7 @@ class GridSearch():
             GridSearch.searchNode(nodeX - 1, nodeY, nodeDistance + 1)
 
         return GridSearch.searchGrid
-
-                    
+                   
     def searchNode(x, y, nodeDistance):
         if (GridSearch.validateNode(x, y)):
             GridSearch.searchGrid[x, y] = np.array([nodeDistance, nodeDistance, nodeDistance])

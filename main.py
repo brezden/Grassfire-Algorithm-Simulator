@@ -13,21 +13,26 @@ class mainPage(QDialog):
         super(mainPage,self).__init__()
         loadUi("mainPage.ui", self)
         self.computeButton.clicked.connect(self.handleInput)
-
+        
     def savePhoto(grid, self):
         im = Image.fromarray(grid).resize((550,550), resample=Image.NEAREST).save('result.png')
         gridPhoto = QLabel(self)
         gridPhoto.setPixmap(QPixmap('result.png')), gridPhoto.move(540,150), gridPhoto.show()
 
     def handleInput(self):
-        gridWidth = int(self.gridWidthText.text())
-        gridHeight = int(self.gridHeightText.text())
-        obstaclePercent = int(self.obstacleText.text()) / 100
-        if ((8 <= gridWidth <= 100) and (8 <= gridHeight <= 100) and (.10 <= obstaclePercent <= .20)):
-            gridMap = Grid.gridComputation(gridWidth, gridHeight, obstaclePercent)
-            mainPage.savePhoto(gridMap, self)
-            finalGridMap = GridShortestPath.findShortestPath()
-            mainPage.savePhoto(finalGridMap, self)
+        try:
+            gridWidth = int(self.gridWidthText.text())
+            gridHeight = int(self.gridHeightText.text())
+            obstaclePercent = int(self.obstacleText.text()) / 100
+            
+            if ((8 <= gridWidth <= 100) and (8 <= gridHeight <= 100) and (.10 <= obstaclePercent <= .20)):
+                gridMap = Grid.gridComputation(gridWidth, gridHeight, obstaclePercent)
+                mainPage.savePhoto(gridMap, self)
+                finalGridMap = GridShortestPath.findShortestPath()
+                mainPage.savePhoto(finalGridMap, self)
+                self.distance.setText("Distance From Start: " + str(Grid.distanceValue))
+        except:
+            pass
 
 #Settings
 app = QApplication(sys.argv)
