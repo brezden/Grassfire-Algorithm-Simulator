@@ -5,7 +5,7 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QDialog, QMessageBox, QApplication, QVBoxLayout, QGroupBox, QVBoxLayout, QGridLayout, QPushButton, QLabel
 from PyQt5.uic import loadUi
 import numpy as np
-from grid import Grid
+from grid import Grid, GridSearch
 from PIL import Image
 
 class mainPage(QDialog):
@@ -23,10 +23,12 @@ class mainPage(QDialog):
         gridWidth = int(self.gridWidthText.text())
         gridHeight = int(self.gridHeightText.text())
         obstaclePercent = int(self.obstacleText.text()) / 100
-
-        gridMap = Grid.gridComputation(gridWidth, gridHeight, obstaclePercent)
-        mainPage.savePhoto(gridMap, self)
-        #Grid.gridPathComputation
+        if ((8 <= gridWidth <= 100) and (8 <= gridHeight <= 100) and (.10 <= obstaclePercent <= .20)):
+            gridMap = Grid.gridComputation(gridWidth, gridHeight, obstaclePercent)
+            mainPage.savePhoto(gridMap, self)
+            GridSearch.findShortestPath()
+            finalGridMap = GridSearch.findShortestPath()
+            mainPage.savePhoto(finalGridMap, self)
 
 #Settings
 app = QApplication(sys.argv)
