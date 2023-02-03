@@ -28,21 +28,18 @@ class mainPage(QDialog):
             gridHeight = int(self.gridHeightText.text())
             obstaclePercent = int(self.obstacleText.text()) / 100
             
-            if ((8 <= gridWidth <= 100) and (8 <= gridHeight <= 100) and (.10 <= obstaclePercent <= .20)):
+            if ((8 <= gridWidth <= 1000) and (8 <= gridHeight <= 1000) and (.10 <= obstaclePercent <= .20)):
                 Grid.totalDistance = 0
                 gridMap = Grid.gridComputation(gridWidth, gridHeight, obstaclePercent)
                 mainPage.savePhoto(gridMap, self)
                 finalGridMap = GridShortestPath.findShortestPath(self.slowMode.isChecked())
                 self.worker = WorkerThread()
 
-                print(self.slowMode.isChecked())
-
                 if (self.slowMode.isChecked()):
                     self.worker.start()
                     self.worker.update_progress.connect(self.imageUpdate)
                     self.worker.finished.connect(self.imageFinished)
                 else:
-                    print(type(finalGridMap))
                     mainPage.savePhoto(finalGridMap, self)
                     self.distance.setText("Distance From Start: " + str(Grid.distanceValue))
                     self.computeButton.setEnabled(True)
@@ -51,7 +48,6 @@ class mainPage(QDialog):
             pass
     
     def imageUpdate(self):
-        print("yes sir")
         mainPage.savePhoto(Grid.grid, self)
         self.distance.setText("Distance From Start: " + str(Grid.distanceValue))
 
@@ -63,7 +59,7 @@ class WorkerThread(QThread):
 
     def run(self):
         Grid.distanceValue = 0
-
+        
         if (Grid.totalDistance <= 5):
             for i in range(0, (Grid.totalDistance), 1):
                 GridSlowMode.printPathStep()
