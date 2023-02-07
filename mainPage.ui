@@ -329,6 +329,32 @@ font: 20px &quot;Lucida Console&quot;;</string>
     <string>Slow Mode</string>
    </property>
   </widget>
+  <widget class="QLabel" name="errorText">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>140</x>
+     <y>680</y>
+     <width>261</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">display: flex;
+align-items: center;
+justify-content: center;
+color: rgb(255, 0, 0);
+font: 20px &quot;Lucida Console&quot;;</string>
+   </property>
+   <property name="text">
+    <string>Values out of range!</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

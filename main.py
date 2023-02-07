@@ -14,6 +14,7 @@ class mainPage(QDialog):
         super(mainPage,self).__init__()
         loadUi("mainPage.ui", self)
         self.computeButton.clicked.connect(self.handleInput)
+        self.errorText.hide()
         
     def savePhoto(grid, self):
         im = Image.fromarray(grid).resize((550,550), resample=Image.NEAREST).save('result.png')
@@ -22,13 +23,14 @@ class mainPage(QDialog):
 
     def handleInput(self):
         try:
-            self.computeButton.setEnabled(False)
-            self.distance.setText("Distance From Start: ")
             gridWidth = int(self.gridWidthText.text())
             gridHeight = int(self.gridHeightText.text())
             obstaclePercent = int(self.obstacleText.text()) / 100
             
             if ((8 <= gridWidth <= 1000) and (8 <= gridHeight <= 1000) and (.10 <= obstaclePercent <= .20)):
+                self.errorText.hide()
+                self.computeButton.setEnabled(False)
+                self.distance.setText("Distance From Start: ")
                 Grid.totalDistance = 0
                 gridMap = Grid.gridComputation(gridWidth, gridHeight, obstaclePercent)
                 mainPage.savePhoto(gridMap, self)
@@ -44,6 +46,9 @@ class mainPage(QDialog):
                     self.distance.setText("Distance From Start: " + str(Grid.distanceValue))
                     self.computeButton.setEnabled(True)
             
+            else:
+                self.errorText.show()
+
         except:
             pass
     
